@@ -59,7 +59,6 @@ public partial class MainWindow : Window {
                 var json = System.IO.File.ReadAllText(_configPath);
                 _config = System.Text.Json.JsonSerializer.Deserialize<AppConfig>(json) ?? new AppConfig();
 
-                // Restaura a posição exata de qual monitor a janela estava
                 if (!double.IsNaN(_config.WindowLeft) && !double.IsNaN(_config.WindowTop)) {
                     this.WindowStartupLocation = WindowStartupLocation.Manual;
                     this.Left = _config.WindowLeft;
@@ -95,7 +94,6 @@ public partial class MainWindow : Window {
         TxtConfigStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#38bdf8"));
         TxtConfigStatus.Text = "Salvando e ajustando tarefas...";
 
-        // Processa o Agendador de Tarefas do Windows silenciosamente
         bool enableAutoStart = ChkAutoStart.IsChecked ?? false;
         _config.AutoStart = enableAutoStart;
         ManageWindowsTaskScheduler(enableAutoStart);
@@ -120,14 +118,12 @@ public partial class MainWindow : Window {
 
             string taskName = "ControlSensorsAutoStart";
 
-            // Remove qualquer tarefa antiga para evitar conflitos
             var startInfo = new System.Diagnostics.ProcessStartInfo("schtasks.exe", $"/delete /tn \"{taskName}\" /f") {
                 CreateNoWindow = true, UseShellExecute = false
             };
             System.Diagnostics.Process.Start(startInfo)?.WaitForExit();
 
             if (enable) {
-                // Cria a tarefa forçando o modo Administrador (/rl highest)
                 startInfo.Arguments = $"/create /tn \"{taskName}\" /tr \"\\\"{exePath}\\\"\" /sc onlogon /rl highest /f";
                 System.Diagnostics.Process.Start(startInfo)?.WaitForExit();
             }
