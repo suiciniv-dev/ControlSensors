@@ -15,6 +15,9 @@ public partial class MainWindow : Window {
     private readonly WeatherService _weather;
     private readonly AudioVisualizerService _audioVisualizer;
     private readonly DispatcherTimer _timer;
+    private readonly NetworkTrafficService _network;
+    private readonly GameSessionService _gameSession;
+    private GameSessionDto? _lastGameData;
 
     private string _currentSongTitle = "";
     private string _currentCoverBase64 = "";
@@ -43,6 +46,8 @@ public partial class MainWindow : Window {
         _media = new MediaSessionService();
         _weather = new WeatherService();
         _audioVisualizer = new AudioVisualizerService();
+        _network = new NetworkTrafficService();
+        _gameSession = new GameSessionService();
 
         _audioVisualizer.OnBandsUpdated += UpdateAudioBars;
 
@@ -116,16 +121,28 @@ public partial class MainWindow : Window {
             string exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? "";
             if (string.IsNullOrEmpty(exePath)) return;
 
+            string workDir = System.IO.Path.GetDirectoryName(exePath) ?? "";
             string taskName = "ControlSensorsAutoStart";
 
-            var startInfo = new System.Diagnostics.ProcessStartInfo("schtasks.exe", $"/delete /tn \"{taskName}\" /f") {
-                CreateNoWindow = true, UseShellExecute = false
-            };
-            System.Diagnostics.Process.Start(startInfo)?.WaitForExit();
+            if (!enable) {
+                var p = new System.Diagnostics.ProcessStartInfo("powershell.exe", $"-WindowStyle Hidden -Command \"Unregister-ScheduledTask -TaskName '{taskName}' -Confirm:$false -ErrorAction SilentlyContinue\"") {
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
+                System.Diagnostics.Process.Start(p)?.WaitForExit();
+            } else {
+                string psCommand = $"$action = New-ScheduledTaskAction -Execute '{exePath}' -WorkingDirectory '{workDir}'; " +
+                                   $"$trigger = New-ScheduledTaskTrigger -AtLogon; " +
+                                   $"$trigger.Delay = 'PT5S'; " +
+                                   $"$principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -RunLevel Highest; " +
+                                   $"$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit 0; " +
+                                   $"Register-ScheduledTask -TaskName '{taskName}' -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force";
 
-            if (enable) {
-                startInfo.Arguments = $"/create /tn \"{taskName}\" /tr \"\\\"{exePath}\\\"\" /sc onlogon /rl highest /f";
-                System.Diagnostics.Process.Start(startInfo)?.WaitForExit();
+                var p = new System.Diagnostics.ProcessStartInfo("powershell.exe", $"-WindowStyle Hidden -Command \"{psCommand}\"") {
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
+                System.Diagnostics.Process.Start(p)?.WaitForExit();
             }
         } catch { }
     }
@@ -149,8 +166,50 @@ public partial class MainWindow : Window {
         _lastMetrics = _hardware.GetMetrics();
         UpdateSensors(_lastMetrics);
 
+        var netMetrics = _network.GetMetrics();
+        TxtNetDownload.Text = netMetrics.DownloadFormatted;
+        TxtNetUpload.Text = netMetrics.UploadFormatted;
+
+        _lastGameData = _gameSession.CheckActiveGame();
+
         await UpdateMedia();
-        UpdateCarousel();
+
+        if (_lastGameData?.IsInGame == true) {
+            SwitchMode(AppMode.Game);
+
+            TxtGameTitle.Text = _lastGameData.GameName.ToUpper();
+
+            if (_lastMetrics?.CpuTemp.HasValue == true) {
+                TxtGameCpuTemp.Text = $"{Math.Round(_lastMetrics.CpuTemp.Value)}°";
+                TxtGameCpuTemp.Foreground = GetTempColor(_lastMetrics.CpuTemp.Value);
+                SetPulseWarning(TxtGameCpuTemp, BarGameCpu, _lastMetrics.CpuTemp.Value >= 85);
+            }
+            if (_lastMetrics?.CpuUsage.HasValue == true) {
+                TxtGameCpuUsage.Text = $"{Math.Round(_lastMetrics.CpuUsage.Value)}%";
+                BarGameCpu.Value = _lastMetrics.CpuUsage.Value;
+                BarGameCpu.Foreground = GetTempColor(_lastMetrics.CpuUsage.Value, isUsage: true);
+            }
+
+            if (_lastMetrics?.GpuTemp.HasValue == true) {
+                TxtGameGpuTemp.Text = $"{Math.Round(_lastMetrics.GpuTemp.Value)}°";
+                TxtGameGpuTemp.Foreground = GetTempColor(_lastMetrics.GpuTemp.Value);
+                SetPulseWarning(TxtGameGpuTemp, BarGameGpu, _lastMetrics.GpuTemp.Value >= 85);
+            }
+            if (_lastMetrics?.GpuUsage.HasValue == true) {
+                TxtGameGpuUsage.Text = $"{Math.Round(_lastMetrics.GpuUsage.Value)}%";
+                BarGameGpu.Value = _lastMetrics.GpuUsage.Value;
+                BarGameGpu.Foreground = GetTempColor(_lastMetrics.GpuUsage.Value, isUsage: true);
+            }
+
+            TxtGameRam.Text = $"{Math.Round(_lastMetrics?.RamUsagePct ?? 0)}%";
+            TxtGameNet.Text = netMetrics.DownloadFormatted;
+
+        } else if (_lastMediaData != null && _lastMediaData.IsPlaying) {
+            SwitchMode(AppMode.Music);
+            UpdateCarousel();
+        } else {
+            SwitchMode(AppMode.Sensors);
+        }
 
         _weatherTicks++;
         if (_weatherTicks >= 600) {
@@ -198,7 +257,7 @@ public partial class MainWindow : Window {
     }
 
     private void UpdateAudioBars(float[] bands) {
-        if (!_isShowingMusic) return;
+        if (_currentMode != AppMode.Music) return;
 
         Border[] bars = { Bar0, Bar1, Bar2, Bar3, Bar4, Bar5, Bar6, Bar7, Bar8, Bar9, Bar10, Bar11, Bar12, Bar13, Bar14, Bar15 };
 
@@ -227,39 +286,33 @@ public partial class MainWindow : Window {
         }
     }
 
-    private void SwitchMode(bool showMusic) {
-        if (_isShowingMusic == showMusic) return;
-        _isShowingMusic = showMusic;
+    private enum AppMode { Sensors, Music, Game }
+    private AppMode _currentMode = AppMode.Sensors;
 
-        var animDuration = TimeSpan.FromMilliseconds(400);
+    private void SwitchMode(AppMode newMode) {
+        if (_currentMode == newMode) return;
+        _currentMode = newMode;
+
+        var animDuration = TimeSpan.FromMilliseconds(350);
         var fadeIn = new DoubleAnimation(1, animDuration);
         var fadeOut = new DoubleAnimation(0, animDuration);
 
-        if (showMusic) {
-            _audioVisualizer.Start();
+        if (newMode != AppMode.Music) _audioVisualizer.Stop();
+        else _audioVisualizer.Start();
 
-            PanelMusic.Visibility = Visibility.Visible;
-            fadeOut.Completed += (s, e) => PanelSensors.Visibility = Visibility.Hidden;
+        PanelSensors.Visibility = newMode == AppMode.Sensors ? Visibility.Visible : Visibility.Hidden;
+        PanelMusic.Visibility = newMode == AppMode.Music ? Visibility.Visible : Visibility.Hidden;
+        PanelGame.Visibility = newMode == AppMode.Game ? Visibility.Visible : Visibility.Hidden;
 
-            PanelMusic.BeginAnimation(OpacityProperty, fadeIn);
-            PanelSensors.BeginAnimation(OpacityProperty, fadeOut);
-        } else {
-            _audioVisualizer.Stop();
-
-            PanelSensors.Visibility = Visibility.Visible;
-            fadeOut.Completed += (s, e) => PanelMusic.Visibility = Visibility.Hidden;
-
-            PanelSensors.BeginAnimation(OpacityProperty, fadeIn);
-            PanelMusic.BeginAnimation(OpacityProperty, fadeOut);
-        }
+        PanelSensors.BeginAnimation(OpacityProperty, newMode == AppMode.Sensors ? fadeIn : fadeOut);
+        PanelMusic.BeginAnimation(OpacityProperty, newMode == AppMode.Music ? fadeIn : fadeOut);
+        PanelGame.BeginAnimation(OpacityProperty, newMode == AppMode.Game ? fadeIn : fadeOut);
     }
 
     private async System.Threading.Tasks.Task UpdateMedia() {
         _lastMediaData = await _media.GetCurrentMediaAsync();
 
         if (_lastMediaData.IsPlaying) {
-            SwitchMode(true);
-
             if (_lastMediaData.Title != _currentSongTitle || _lastMediaData.CoverBase64 != _currentCoverBase64) {
                 _currentSongTitle = _lastMediaData.Title;
                 _currentCoverBase64 = _lastMediaData.CoverBase64;
@@ -292,7 +345,6 @@ public partial class MainWindow : Window {
                 }
             }
         } else {
-            SwitchMode(false);
             _currentSongTitle = "";
             _currentCoverBase64 = "";
         }
@@ -305,12 +357,13 @@ public partial class MainWindow : Window {
         if (_carouselTicks > 4) {
             _carouselTicks = 0;
             _carouselState++;
-            if (_carouselState > 3) _carouselState = 0;
+
+            int maxState = (_lastGameData?.IsInGame == true) ? 4 : 3;
+            if (_carouselState > maxState) _carouselState = 0;
         }
 
         switch (_carouselState) {
             case 0:
-                string app = string.IsNullOrEmpty(_lastMediaData.AppName) ? "Mídia" : _lastMediaData.AppName;
                 TxtMusicCarousel.Text = $"🎵 Tocando agora";
                 break;
             case 1:
@@ -325,6 +378,13 @@ public partial class MainWindow : Window {
                 string cond = TxtWeatherCond.Text;
                 string temp = TxtWeatherTemp.Text;
                 TxtMusicCarousel.Text = $"☁️ {cond}, {temp}";
+                break;
+            case 4:
+                if (_lastGameData?.IsInGame == true) {
+                    TxtMusicCarousel.Text = $"🎯 Jogando: {_lastGameData.GameName}";
+                } else {
+                    TxtMusicCarousel.Text = $"🎵 Tocando agora";
+                }
                 break;
         }
     }
@@ -354,8 +414,20 @@ public partial class MainWindow : Window {
         base.OnClosed(e);
     }
 
-    private void BtnCloseApp_Click(object sender, RoutedEventArgs e) {
+    private void BtnCloseApp_Click(object sender, MouseButtonEventArgs e) {
         Application.Current.Shutdown();
+    }
+
+    private async void BtnPrev_Click(object sender, MouseButtonEventArgs e) {
+        await _media.SkipPreviousAsync();
+    }
+
+    private async void BtnPlayPause_Click(object sender, MouseButtonEventArgs e) {
+        await _media.TogglePlayPauseAsync();
+    }
+
+    private async void BtnNext_Click(object sender, MouseButtonEventArgs e) {
+        await _media.SkipNextAsync();
     }
 }
 

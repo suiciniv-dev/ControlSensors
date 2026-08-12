@@ -67,7 +67,7 @@
 
     <Grid Background="#0a0c11">
 
-        <TextBlock Text="⚙" FontSize="20" Foreground="#64748b" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20" Cursor="Hand" MouseLeftButtonDown="BtnOpenConfig_Click" Panel.ZIndex="10">
+        <TextBlock Text="⚙" FontSize="20" Foreground="#64748b" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20" Cursor="Hand" MouseLeftButtonDown="BtnOpenConfig_Click" Panel.ZIndex="10">
             <TextBlock.Style>
                 <Style TargetType="TextBlock">
                     <Style.Triggers>
@@ -78,86 +78,139 @@
                 </Style>
             </TextBlock.Style>
         </TextBlock>
-
+        <TextBlock Text="✖" FontSize="20" Foreground="#64748b" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20" Cursor="Hand" MouseLeftButtonDown="BtnCloseApp_Click" Panel.ZIndex="10">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="#ef4444"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+        
         <!-- PAINEL 1: DASHBOARD DE SENSORES -->
-        <Grid x:Name="PanelSensors" Margin="40,30,40,30" Opacity="1">
+        <Grid x:Name="PanelSensors" Margin="35,25,35,25" Opacity="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                <Viewbox MaxHeight="60" HorizontalAlignment="Center">
+            <!-- HORA E DATA -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                <Viewbox MaxHeight="55" HorizontalAlignment="Center">
                     <TextBlock x:Name="TxtTime" Text="00:00" FontWeight="Bold" Foreground="White"/>
                 </Viewbox>
-                <TextBlock x:Name="TxtDate" Text="--- • 00 ---" FontSize="16" Foreground="#64748b" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                <TextBlock x:Name="TxtDate" Text="--- • 00 ---" FontSize="14" Foreground="#64748b" HorizontalAlignment="Center" Margin="0,2,0,0"/>
             </StackPanel>
 
+            <!-- CPU E GPU -->
             <Grid Grid.Row="1" VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="15"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="CPU" FontSize="16" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,5"/>
-                    <TextBlock x:Name="TxtCpuTemp" Text="--°" FontSize="36" FontWeight="Bold" Foreground="#f97316"/>
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="TxtCpuUsage" Text="0%" FontSize="14" Margin="0,0,10,0" Width="40" Foreground="#cbd5e1" VerticalAlignment="Center"/>
-                        <ProgressBar x:Name="BarCpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="8" Foreground="#38bdf8" BorderThickness="0" VerticalAlignment="Center"/>
-                    </Grid>
-                </StackPanel>
+                <!-- Card CPU -->
+                <Border Grid.Column="0" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="10" Padding="15,12">
+                    <StackPanel>
+                        <TextBlock Text="CPU" FontSize="13" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,3"/>
+                        <TextBlock x:Name="TxtCpuTemp" Text="--°" FontSize="30" FontWeight="Bold" Foreground="#f97316"/>
+                        <Grid Margin="0,6,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="TxtCpuUsage" Text="0%" FontSize="13" Margin="0,0,8,0" Width="35" Foreground="#cbd5e1" VerticalAlignment="Center"/>
+                            <ProgressBar x:Name="BarCpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="6" Foreground="#38bdf8" BorderThickness="0" VerticalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="GPU" FontSize="16" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,5"/>
-                    <TextBlock x:Name="TxtGpuTemp" Text="--°" FontSize="36" FontWeight="Bold" Foreground="#f97316"/>
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="TxtGpuUsage" Text="0%" FontSize="14" Margin="0,0,10,0" Width="40" Foreground="#cbd5e1" VerticalAlignment="Center"/>
-                        <ProgressBar x:Name="BarGpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="8" Foreground="#38bdf8" BorderThickness="0" VerticalAlignment="Center"/>
-                    </Grid>
-                </StackPanel>
+                <!-- Card GPU -->
+                <Border Grid.Column="2" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="10" Padding="15,12">
+                    <StackPanel>
+                        <TextBlock Text="GPU" FontSize="13" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,3"/>
+                        <TextBlock x:Name="TxtGpuTemp" Text="--°" FontSize="30" FontWeight="Bold" Foreground="#f97316"/>
+                        <Grid Margin="0,6,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="TxtGpuUsage" Text="0%" FontSize="13" Margin="0,0,8,0" Width="35" Foreground="#cbd5e1" VerticalAlignment="Center"/>
+                            <ProgressBar x:Name="BarGpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="6" Foreground="#38bdf8" BorderThickness="0" VerticalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
             </Grid>
 
-            <StackPanel Grid.Row="2" Margin="0,20,0,20">
-                <TextBlock Text="MEMÓRIA RAM" FontSize="14" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,5"/>
-                <TextBlock x:Name="TxtRamDetail" Text="-- / -- GB" FontSize="16" Foreground="#cbd5e1" Margin="0,0,0,8"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <ProgressBar x:Name="BarRam" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="8" Foreground="#38bdf8" BorderThickness="0" Margin="0,0,15,0" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="TxtRamPct" Grid.Column="1" Text="0%" FontSize="14" Foreground="#cbd5e1" VerticalAlignment="Center"/>
-                </Grid>
-            </StackPanel>
+            <!-- MEMÓRIA RAM -->
+            <Border Grid.Row="2" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="10" Padding="15,10" Margin="0,12,0,0">
+                <StackPanel>
+                    <Grid Margin="0,0,0,5">
+                        <TextBlock Text="MEMÓRIA RAM" FontSize="12" FontWeight="Bold" Foreground="#64748b" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtRamDetail" Text="-- / -- GB" FontSize="13" Foreground="#cbd5e1" HorizontalAlignment="Right"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ProgressBar x:Name="BarRam" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="6" Foreground="#38bdf8" BorderThickness="0" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtRamPct" Grid.Column="1" Text="0%" FontSize="13" Foreground="#cbd5e1" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
 
-            <Rectangle Grid.Row="3" Height="1" Fill="#202738" Margin="0,0,0,15"/>
+            <!-- NOVO: TRÁFEGO DE REDE -->
+            <Grid Grid.Row="3" Margin="0,10,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="8" Padding="10,8">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="⬇" Foreground="#38bdf8" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <StackPanel>
+                            <TextBlock Text="DOWNLOAD" FontSize="10" Foreground="#64748b" FontWeight="Bold"/>
+                            <TextBlock x:Name="TxtNetDownload" Text="0 KB/s" FontSize="13" FontWeight="Bold" Foreground="#f1f5f9"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="8" Padding="10,8">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="⬆" Foreground="#10b981" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <StackPanel>
+                            <TextBlock Text="UPLOAD" FontSize="10" Foreground="#64748b" FontWeight="Bold"/>
+                            <TextBlock x:Name="TxtNetUpload" Text="0 KB/s" FontSize="13" FontWeight="Bold" Foreground="#f1f5f9"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
 
-            <Grid Grid.Row="4">
+            <Rectangle Grid.Row="4" Height="1" Fill="#1e293b" Margin="0,5,0,10"/>
+
+            <!-- CLIMA -->
+            <Grid Grid.Row="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="TxtWeatherIcon" Text="🌧" FontSize="26" Margin="0,0,10,0"/>
-                    <TextBlock x:Name="TxtWeatherTemp" Text="--°C " FontSize="22" FontWeight="Bold"/>
-                    <TextBlock x:Name="TxtWeatherCity" Text=" Canoas, RS" FontSize="16" Foreground="#94a3b8" VerticalAlignment="Bottom" Margin="10,0,0,6"/>
+                    <TextBlock x:Name="TxtWeatherIcon" Text="🌧" FontSize="24" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtWeatherTemp" Text="--°C " FontSize="20" FontWeight="Bold"/>
+                    <TextBlock x:Name="TxtWeatherCity" Text=" Canoas, RS" FontSize="14" Foreground="#94a3b8" VerticalAlignment="Bottom" Margin="6,0,0,4"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock x:Name="TxtWeatherCond" Text="---" FontSize="14" Foreground="#64748b" HorizontalAlignment="Right"/>
-                    <TextBlock x:Name="TxtWeatherRange" Text="Máx --° • Mín --°" FontSize="14" Foreground="#64748b" HorizontalAlignment="Right" Margin="0,2,0,0"/>
+                    <TextBlock x:Name="TxtWeatherCond" Text="---" FontSize="13" Foreground="#64748b" HorizontalAlignment="Right"/>
+                    <TextBlock x:Name="TxtWeatherRange" Text="Máx --° • Mín --°" FontSize="12" Foreground="#64748b" HorizontalAlignment="Right" Margin="0,2,0,0"/>
                 </StackPanel>
             </Grid>
         </Grid>
@@ -199,7 +252,45 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0,0,0">
                     <TextBlock x:Name="TxtMusicBigTitle" Text="Música" FontSize="42" FontWeight="Bold" Foreground="White" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="110"/>
                     <TextBlock x:Name="TxtMusicBigArtist" Text="Artista" FontSize="22" Foreground="#94a3b8" Margin="0,5,0,15"/>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                        <TextBlock Text="⏮" FontSize="26" Foreground="#94a3b8" Margin="0,0,20,0" Cursor="Hand" MouseLeftButtonDown="BtnPrev_Click">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="#38bdf8"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
+                        <TextBlock Text="⏯" FontSize="26" Foreground="#94a3b8" Margin="0,0,20,0" Cursor="Hand" MouseLeftButtonDown="BtnPlayPause_Click">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="#38bdf8"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <TextBlock Text="⏭" FontSize="26" Foreground="#94a3b8" Cursor="Hand" MouseLeftButtonDown="BtnNext_Click">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="#38bdf8"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                    
                     <StackPanel x:Name="AudioVisualizerPanel" Orientation="Horizontal" Margin="0,0,0,20" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Left">
                         <Border x:Name="Bar0" Width="6" Height="4" Background="#38bdf8" Margin="0,0,4,0" CornerRadius="3" VerticalAlignment="Bottom" />
                         <Border x:Name="Bar1" Width="6" Height="4" Background="#38bdf8" Margin="0,0,4,0" CornerRadius="3" VerticalAlignment="Bottom" />
@@ -226,6 +317,111 @@
             </Grid>
         </Grid>
 
+        <!-- PAINEL 3: MODO JOGO (DASHBOARD DE PERFORMANCE) -->
+        <!-- PAINEL 3: MODO JOGO (DASHBOARD DE PERFORMANCE AGRESSIVO) -->
+        <Grid x:Name="PanelGame" Opacity="0" Visibility="Hidden" Background="#050505">
+            <!-- Fundo de grade com gradiente de alerta térmico -->
+            <Border>
+                <Border.Background>
+                    <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.8" RadiusY="0.8">
+                        <GradientStop Color="#2a0808" Offset="0.0"/>
+                        <GradientStop Color="#080505" Offset="1.0"/>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <Grid Margin="30,20,30,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Cabeçalho Agressivo -->
+                <Border Grid.Row="0" Background="#ef4444" CornerRadius="4" HorizontalAlignment="Center" Padding="20,4">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#ef4444" BlurRadius="15" ShadowDepth="0" Opacity="0.8"/>
+                    </Border.Effect>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚠ MODO DE ALTO DESEMPENHO ATIVO: " FontSize="12" FontWeight="Black" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtGameTitle" Text="[JOGO]" FontSize="14" FontWeight="Bold" Foreground="#ffe4e6" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- CPU e GPU em Destaque Absoluto -->
+                <Grid Grid.Row="1" VerticalAlignment="Center" Margin="0,15,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Card CPU Gigante -->
+                    <Border Grid.Column="0" Background="#0f0f13" BorderBrush="#2a1010" BorderThickness="2" CornerRadius="12" Padding="20">
+                        <StackPanel>
+                            <TextBlock Text="PROCESSADOR (CPU)" FontSize="14" FontWeight="Black" Foreground="#7f1d1d" Margin="0,0,0,0"/>
+                            <TextBlock x:Name="TxtGameCpuTemp" Text="--°" FontSize="80" FontWeight="Black" Foreground="#ef4444" HorizontalAlignment="Center">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="5" Opacity="0.5"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                            <Grid Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="TxtGameCpuUsage" Text="0%" FontSize="20" FontWeight="Bold" Margin="0,0,12,0" Width="60" Foreground="#f87171" VerticalAlignment="Center" TextAlignment="Right"/>
+                                <ProgressBar x:Name="BarGameCpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="12" Foreground="#ef4444" BorderThickness="0" VerticalAlignment="Center"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Card GPU Gigante -->
+                    <Border Grid.Column="2" Background="#0f0f13" BorderBrush="#2a1010" BorderThickness="2" CornerRadius="12" Padding="20">
+                        <StackPanel>
+                            <TextBlock Text="PLACA DE VÍDEO (GPU)" FontSize="14" FontWeight="Black" Foreground="#7f1d1d" Margin="0,0,0,0"/>
+                            <TextBlock x:Name="TxtGameGpuTemp" Text="--°" FontSize="80" FontWeight="Black" Foreground="#ef4444" HorizontalAlignment="Center">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="5" Opacity="0.5"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                            <Grid Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="TxtGameGpuUsage" Text="0%" FontSize="20" FontWeight="Bold" Margin="0,0,12,0" Width="60" Foreground="#f87171" VerticalAlignment="Center" TextAlignment="Right"/>
+                                <ProgressBar x:Name="BarGameGpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="12" Foreground="#ef4444" BorderThickness="0" VerticalAlignment="Center"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Rodapé -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="#0f0f13" BorderBrush="#2a1010" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="USO DE RAM: " FontSize="14" Foreground="#991b1b" FontWeight="Black"/>
+                            <TextBlock x:Name="TxtGameRam" Text="--%" FontSize="16" Foreground="#fca5a5" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Background="#0f0f13" BorderBrush="#2a1010" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="TRÁFEGO DE REDE: " FontSize="14" Foreground="#991b1b" FontWeight="Black"/>
+                            <TextBlock x:Name="TxtGameNet" Text="0 KB/s" FontSize="16" Foreground="#fca5a5" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+
         <!-- PAINEL 3: CONFIGURAÇÕES -->
         <Border x:Name="PanelConfig" Visibility="Hidden" Opacity="0" Background="#ea080a0f" Panel.ZIndex="20">
             <Border Width="380" Background="#11151e" BorderBrush="#202738" BorderThickness="2" CornerRadius="12" Padding="25" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -249,8 +445,6 @@
 
                     <TextBlock x:Name="TxtConfigStatus" Foreground="#ef4444" FontSize="14" HorizontalAlignment="Center" Margin="0,15,0,15"/>
 
-                    <!-- NOVO BOTÃO PARA FECHAR O APP -->
-                    <Button Style="{StaticResource FlatButton}" Background="#ef4444" Foreground="White" Content="Encerrar HUD" Click="BtnCloseApp_Click"/>
                 </StackPanel>
             </Border>
         </Border>

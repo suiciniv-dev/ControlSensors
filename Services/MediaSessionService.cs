@@ -18,14 +18,13 @@ public class MediaInfoDto {
 }
 
 public class MediaSessionService {
-    public async Task<MediaInfoDto> GetCurrentMediaAsync() {
+    private GlobalSystemMediaTransportControlsSession? _currentSession;
 
+    public async Task<MediaInfoDto> GetCurrentMediaAsync() {
         return await Task.Run(async () => {
             var mediaInfo = new MediaInfoDto();
-
             try {
                 var manager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
-
                 var session = manager?.GetCurrentSession();
 
                 if (session == null || session.GetPlaybackInfo()?.PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing) {
@@ -41,6 +40,8 @@ public class MediaSessionService {
                 }
 
                 if (session != null) {
+                    _currentSession = session;
+
                     var playbackInfo = session.GetPlaybackInfo();
                     mediaInfo.IsPlaying = playbackInfo?.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
                     mediaInfo.AppName = session.SourceAppUserModelId;
@@ -72,5 +73,17 @@ public class MediaSessionService {
 
             return mediaInfo;
         });
+    }
+
+    public async Task TogglePlayPauseAsync() {
+        if (_currentSession != null) await _currentSession.TryTogglePlayPauseAsync();
+    }
+
+    public async Task SkipNextAsync() {
+        if (_currentSession != null) await _currentSession.TrySkipNextAsync();
+    }
+
+    public async Task SkipPreviousAsync() {
+        if (_currentSession != null) await _currentSession.TrySkipPreviousAsync();
     }
 }
