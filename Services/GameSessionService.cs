@@ -2,13 +2,9 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
+using ControlSensors.Models;
 
 namespace ControlSensors.Services;
-
-public class GameSessionDto {
-    public bool IsInGame { get; set; }
-    public string GameName { get; set; } = string.Empty;
-}
 
 public class GameSessionService {
     [DllImport("user32.dll")]

@@ -5,15 +5,19 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" Topmost="True"
         ShowInTaskbar="False"
-        FontFamily="Consolas" Foreground="#f1f5f9">
+        FontFamily="Segoe UI Variable Display, Segoe UI, Arial" Foreground="#f1f5f9">
 
     <Window.Resources>
         <Style x:Key="FlatProgressBar" TargetType="ProgressBar">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ProgressBar">
-                        <Border Background="#221a2233" CornerRadius="4" ClipToBounds="True">
-                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" CornerRadius="4"/>
+                        <Border Background="#1a2333" CornerRadius="5" ClipToBounds="True">
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" CornerRadius="5">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="{TemplateBinding Foreground}" BlurRadius="8" ShadowDepth="0" Opacity="0.6"/>
+                                </Border.Effect>
+                            </Border>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -21,17 +25,26 @@
         </Style>
 
         <Style x:Key="FlatTextBox" TargetType="TextBox">
-            <Setter Property="Background" Value="#1a2233"/>
+            <Setter Property="Background" Value="#16202e"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="#38bdf8"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#000000" BlurRadius="10" ShadowDepth="2" Opacity="0.3" Direction="270"/>
+                            </Border.Effect>
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="2"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#60a5fa"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -40,23 +53,38 @@
         <Style x:Key="FlatButton" TargetType="Button">
             <Setter Property="Background" Value="#38bdf8"/>
             <Setter Property="Foreground" Value="#080a0f"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="18,10"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Cursor="Hand">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Cursor="Hand">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#38bdf8" BlurRadius="12" ShadowDepth="0" Opacity="0.4"/>
+                            </Border.Effect>
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#60a5fa"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#3b82f6"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Opacity" Value="0.8"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
     </Window.Resources>
 
@@ -65,7 +93,14 @@
         <MouseBinding Gesture="LeftDoubleClick" Command="{Binding MaximizeWindowCommand}" />
     </Window.InputBindings>
 
-    <Grid Background="#0a0c11">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0a0c11" Offset="0"/>
+                <GradientStop Color="#0f1419" Offset="0.5"/>
+                <GradientStop Color="#0a0c11" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
 
         <TextBlock Text="⚙" FontSize="20" Foreground="#64748b" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20" Cursor="Hand" MouseLeftButtonDown="BtnOpenConfig_Click" Panel.ZIndex="10">
             <TextBlock.Style>
@@ -78,6 +113,7 @@
                 </Style>
             </TextBlock.Style>
         </TextBlock>
+
         <TextBlock Text="✖" FontSize="20" Foreground="#64748b" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20" Cursor="Hand" MouseLeftButtonDown="BtnCloseApp_Click" Panel.ZIndex="10">
             <TextBlock.Style>
                 <Style TargetType="TextBlock">
@@ -90,8 +126,8 @@
             </TextBlock.Style>
         </TextBlock>
         
-        <!-- PAINEL 1: DASHBOARD DE SENSORES -->
-        <Grid x:Name="PanelSensors" Margin="35,25,35,25" Opacity="1">
+        <!-- PAINEL 1: DASHBOARD DE SENSORES PREMIUM -->
+        <Grid x:Name="PanelSensors" Margin="30,20,30,20" Opacity="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -101,15 +137,19 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- HORA E DATA -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,15">
-                <Viewbox MaxHeight="55" HorizontalAlignment="Center">
-                    <TextBlock x:Name="TxtTime" Text="00:00" FontWeight="Bold" Foreground="White"/>
+            <!-- HORA E DATA MODERNA -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <Viewbox MaxHeight="60" HorizontalAlignment="Center">
+                    <TextBlock x:Name="TxtTime" Text="00:00" FontWeight="Bold" Foreground="White">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="#38bdf8" BlurRadius="15" ShadowDepth="0" Opacity="0.3"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
                 </Viewbox>
-                <TextBlock x:Name="TxtDate" Text="--- • 00 ---" FontSize="14" Foreground="#64748b" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                <TextBlock x:Name="TxtDate" Text="--- • 00 ---" FontSize="14" Foreground="#64748b" HorizontalAlignment="Center" Margin="0,4,0,0"/>
             </StackPanel>
 
-            <!-- CPU E GPU -->
+            <!-- CPU E GPU MODERNOS -->
             <Grid Grid.Row="1" VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -117,78 +157,159 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Card CPU -->
-                <Border Grid.Column="0" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="10" Padding="15,12">
+                <!-- Card CPU Premium -->
+                <Border Grid.Column="0" Background="#0d1117" BorderBrush="#1f2937" BorderThickness="1" CornerRadius="16" Padding="20,16">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#000000" BlurRadius="25" ShadowDepth="5" Opacity="0.6" Direction="270"/>
+                    </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="CPU" FontSize="13" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,3"/>
-                        <TextBlock x:Name="TxtCpuTemp" Text="--°" FontSize="30" FontWeight="Bold" Foreground="#f97316"/>
-                        <Grid Margin="0,6,0,0">
+                        <!-- Header com badge de status -->
+                        <Grid Margin="0,0,0,8">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔥" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="PROCESSADOR" FontSize="11" FontWeight="Bold" Foreground="#64748b" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <Border x:Name="CpuStatusBadge" Background="#10b981" CornerRadius="8" Padding="8,3" HorizontalAlignment="Right">
+                                <TextBlock Text="NORMAL" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                        </Grid>
+                        <TextBlock x:Name="TxtCpuTemp" Text="--°" FontSize="36" FontWeight="Black" Foreground="#fb923c" Margin="0,4,0,12">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#fb923c" BlurRadius="12" ShadowDepth="0" Opacity="0.5"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <Grid Margin="0,0,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:Name="TxtCpuUsage" Text="0%" FontSize="13" Margin="0,0,8,0" Width="35" Foreground="#cbd5e1" VerticalAlignment="Center"/>
-                            <ProgressBar x:Name="BarCpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="6" Foreground="#38bdf8" BorderThickness="0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="TxtCpuUsage" Text="0%" FontSize="14" FontWeight="SemiBold" Margin="0,0,12,0" Width="40" Foreground="#e2e8f0" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <Border Grid.Column="1" Background="#1a2333" CornerRadius="6" Height="8">
+                                <ProgressBar x:Name="BarCpu" Value="0" Maximum="100" Background="Transparent" BorderThickness="0" Foreground="#38bdf8" VerticalAlignment="Center">
+                                    <ProgressBar.Template>
+                                        <ControlTemplate TargetType="ProgressBar">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" ClipToBounds="True">
+                                                <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" CornerRadius="6">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect Color="#38bdf8" BlurRadius="10" ShadowDepth="0" Opacity="0.7"/>
+                                                    </Border.Effect>
+                                                </Border>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </ProgressBar.Template>
+                                </ProgressBar>
+                            </Border>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <!-- Card GPU -->
-                <Border Grid.Column="2" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="10" Padding="15,12">
+                <!-- Card GPU Premium -->
+                <Border Grid.Column="2" Background="#0d1117" BorderBrush="#1f2937" BorderThickness="1" CornerRadius="16" Padding="20,16">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#000000" BlurRadius="25" ShadowDepth="5" Opacity="0.6" Direction="270"/>
+                    </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="GPU" FontSize="13" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,3"/>
-                        <TextBlock x:Name="TxtGpuTemp" Text="--°" FontSize="30" FontWeight="Bold" Foreground="#f97316"/>
-                        <Grid Margin="0,6,0,0">
+                        <!-- Header com badge de status -->
+                        <Grid Margin="0,0,0,8">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="⚡" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="PLACA DE VÍDEO" FontSize="11" FontWeight="Bold" Foreground="#64748b" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <Border x:Name="GpuStatusBadge" Background="#10b981" CornerRadius="8" Padding="8,3" HorizontalAlignment="Right">
+                                <TextBlock Text="NORMAL" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                        </Grid>
+                        <TextBlock x:Name="TxtGpuTemp" Text="--°" FontSize="36" FontWeight="Black" Foreground="#fb923c" Margin="0,4,0,12">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#fb923c" BlurRadius="12" ShadowDepth="0" Opacity="0.5"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <Grid Margin="0,0,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:Name="TxtGpuUsage" Text="0%" FontSize="13" Margin="0,0,8,0" Width="35" Foreground="#cbd5e1" VerticalAlignment="Center"/>
-                            <ProgressBar x:Name="BarGpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="6" Foreground="#38bdf8" BorderThickness="0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="TxtGpuUsage" Text="0%" FontSize="14" FontWeight="SemiBold" Margin="0,0,12,0" Width="40" Foreground="#e2e8f0" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <Border Grid.Column="1" Background="#1a2333" CornerRadius="6" Height="8">
+                                <ProgressBar x:Name="BarGpu" Value="0" Maximum="100" Background="Transparent" BorderThickness="0" Foreground="#38bdf8" VerticalAlignment="Center">
+                                    <ProgressBar.Template>
+                                        <ControlTemplate TargetType="ProgressBar">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" ClipToBounds="True">
+                                                <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" CornerRadius="6">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect Color="#38bdf8" BlurRadius="10" ShadowDepth="0" Opacity="0.7"/>
+                                                    </Border.Effect>
+                                                </Border>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </ProgressBar.Template>
+                                </ProgressBar>
+                            </Border>
                         </Grid>
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <!-- MEMÓRIA RAM -->
-            <Border Grid.Row="2" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="10" Padding="15,10" Margin="0,12,0,0">
+            <Border Grid.Row="2" Background="#0d1117" BorderBrush="#1f2937" BorderThickness="1" CornerRadius="14" Padding="20,14" Margin="0,15,0,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" BlurRadius="25" ShadowDepth="5" Opacity="0.6" Direction="270"/>
+                </Border.Effect>
                 <StackPanel>
-                    <Grid Margin="0,0,0,5">
-                        <TextBlock Text="MEMÓRIA RAM" FontSize="12" FontWeight="Bold" Foreground="#64748b" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="TxtRamDetail" Text="-- / -- GB" FontSize="13" Foreground="#cbd5e1" HorizontalAlignment="Right"/>
+                    <Grid Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="💾" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="MEMÓRIA RAM" FontSize="11" FontWeight="Bold" Foreground="#64748b" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock x:Name="TxtRamDetail" Text="-- / -- GB" FontSize="13" FontWeight="SemiBold" Foreground="#cbd5e1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <ProgressBar x:Name="BarRam" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="6" Foreground="#38bdf8" BorderThickness="0" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="TxtRamPct" Grid.Column="1" Text="0%" FontSize="13" Foreground="#cbd5e1" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
-            <!-- NOVO: TRÁFEGO DE REDE -->
+            <!-- TRÁFEGO DE REDE -->
             <Grid Grid.Row="3" Margin="0,10,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="8" Padding="10,8">
+                <Border Grid.Column="0" CornerRadius="10" Padding="12,10">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#16202e" Offset="0"/>
+                            <GradientStop Color="#131924" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Effect>
+                        <DropShadowEffect Color="#000000" BlurRadius="15" ShadowDepth="3" Opacity="0.4" Direction="270"/>
+                    </Border.Effect>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⬇" Foreground="#38bdf8" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="⬇" Foreground="#38bdf8" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
                         <StackPanel>
-                            <TextBlock Text="DOWNLOAD" FontSize="10" Foreground="#64748b" FontWeight="Bold"/>
+                            <TextBlock Text="DOWNLOAD" FontSize="9" Foreground="#94a3b8" FontWeight="SemiBold"/>
                             <TextBlock x:Name="TxtNetDownload" Text="0 KB/s" FontSize="13" FontWeight="Bold" Foreground="#f1f5f9"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="2" Background="#131924" BorderBrush="#1e293b" BorderThickness="1" CornerRadius="8" Padding="10,8">
+                <Border Grid.Column="2" CornerRadius="10" Padding="12,10">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#16202e" Offset="0"/>
+                            <GradientStop Color="#131924" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Effect>
+                        <DropShadowEffect Color="#000000" BlurRadius="15" ShadowDepth="3" Opacity="0.4" Direction="270"/>
+                    </Border.Effect>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⬆" Foreground="#10b981" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="⬆" Foreground="#10b981" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
                         <StackPanel>
-                            <TextBlock Text="UPLOAD" FontSize="10" Foreground="#64748b" FontWeight="Bold"/>
+                            <TextBlock Text="UPLOAD" FontSize="9" Foreground="#94a3b8" FontWeight="SemiBold"/>
                             <TextBlock x:Name="TxtNetUpload" Text="0 KB/s" FontSize="13" FontWeight="Bold" Foreground="#f1f5f9"/>
                         </StackPanel>
                     </StackPanel>
@@ -217,19 +338,35 @@
 
         <!-- PAINEL 2: MÚSICA EM TELA CHEIA -->
         <Grid x:Name="PanelMusic" Opacity="0" Visibility="Hidden">
-            <Border Opacity="0.4">
+            <!-- Background com BLUR de 60px -->
+            <Border>
                 <Border.Background>
                     <ImageBrush x:Name="ImgMusicBg" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Border.Background>
+                <Border.Effect>
+                    <BlurEffect Radius="60"/>
+                </Border.Effect>
             </Border>
 
+            <!-- Overlay com gradiente radial escuro (glassmorphism) -->
             <Border>
                 <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#dd080a0f" Offset="0.0"/>
-                        <GradientStop Color="#ff080a0f" Offset="1.0"/>
-                    </LinearGradientBrush>
+                    <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.8" RadiusY="0.8">
+                        <GradientStop Color="#88000000" Offset="0.0"/>
+                        <GradientStop Color="#dd000000" Offset="1.0"/>
+                    </RadialGradientBrush>
                 </Border.Background>
+            </Border>
+
+            <!-- Badge do Player no topo -->
+            <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,35,0,0" Background="#15ffffff" CornerRadius="20" Padding="15,8" Panel.ZIndex="10">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" BlurRadius="12" ShadowDepth="4" Opacity="0.4"/>
+                </Border.Effect>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🎵" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtPlayerSource" Text="Playing Music" FontSize="13" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
             </Border>
 
             <Grid Margin="40">
@@ -238,21 +375,42 @@
                     <ColumnDefinition Width="0.6*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Width="230" Height="230" CornerRadius="16" BorderBrush="#38bdf8" BorderThickness="1" Background="#1a2233" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,20,0">
-                    <Border.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="40" Opacity="0.9" ShadowDepth="10"/>
-                    </Border.Effect>
-                    <Border CornerRadius="15" ClipToBounds="True">
-                        <Border.Background>
-                            <ImageBrush x:Name="ImgMusicCoverCenter" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        </Border.Background>
+                <!-- Capa do álbum ESTILIZADA - 280x280 com glow effect -->
+                <Grid Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,20,0">
+                    <!-- Glow effect AZUL atrás da capa -->
+                    <Border Width="280" Height="280" CornerRadius="20" Background="#38bdf8" Opacity="0.3">
+                        <Border.Effect>
+                            <BlurEffect Radius="40"/>
+                        </Border.Effect>
                     </Border>
-                </Border>
 
+                    <!-- Capa principal com sombra dramática -->
+                    <Border Width="280" Height="280" CornerRadius="20" BorderBrush="#30ffffff" BorderThickness="2" Background="#1a2233">
+                        <Border.Effect>
+                            <DropShadowEffect Color="Black" BlurRadius="50" Opacity="0.9" ShadowDepth="15"/>
+                        </Border.Effect>
+                        <Border CornerRadius="18" ClipToBounds="True">
+                            <Border.Background>
+                                <ImageBrush x:Name="ImgMusicCoverCenter" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Border.Background>
+                            <!-- Reflection effect sutil no topo -->
+                            <Border Background="#08ffffff" VerticalAlignment="Top" Height="100">
+                                <Border.OpacityMask>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#40ffffff" Offset="0"/>
+                                        <GradientStop Color="#00ffffff" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.OpacityMask>
+                            </Border>
+                        </Border>
+                    </Border>
+                </Grid>
+
+                <!-- MANTÉM TODO O RESTO ORIGINAL -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0,0,0">
                     <TextBlock x:Name="TxtMusicBigTitle" Text="Música" FontSize="42" FontWeight="Bold" Foreground="White" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="110"/>
                     <TextBlock x:Name="TxtMusicBigArtist" Text="Artista" FontSize="22" Foreground="#94a3b8" Margin="0,5,0,15"/>
-                    
+
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                         <TextBlock Text="⏮" FontSize="26" Foreground="#94a3b8" Margin="0,0,20,0" Cursor="Hand" MouseLeftButtonDown="BtnPrev_Click">
                             <TextBlock.Style>
@@ -290,7 +448,7 @@
                             </TextBlock.Style>
                         </TextBlock>
                     </StackPanel>
-                    
+
                     <StackPanel x:Name="AudioVisualizerPanel" Orientation="Horizontal" Margin="0,0,0,20" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Left">
                         <Border x:Name="Bar0" Width="6" Height="4" Background="#38bdf8" Margin="0,0,4,0" CornerRadius="3" VerticalAlignment="Bottom" />
                         <Border x:Name="Bar1" Width="6" Height="4" Background="#38bdf8" Margin="0,0,4,0" CornerRadius="3" VerticalAlignment="Bottom" />
@@ -317,16 +475,30 @@
             </Grid>
         </Grid>
 
-        <!-- PAINEL 3: MODO JOGO (DASHBOARD DE PERFORMANCE) -->
-        <!-- PAINEL 3: MODO JOGO (DASHBOARD DE PERFORMANCE AGRESSIVO) -->
-        <Grid x:Name="PanelGame" Opacity="0" Visibility="Hidden" Background="#050505">
-            <!-- Fundo de grade com gradiente de alerta térmico -->
+        <!-- PAINEL 3: MODO GAMER PREMIUM -->
+        <Grid x:Name="PanelGame" Opacity="0" Visibility="Hidden">
+            <!-- Background com gradiente moderno -->
             <Border>
                 <Border.Background>
-                    <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.8" RadiusY="0.8">
-                        <GradientStop Color="#2a0808" Offset="0.0"/>
-                        <GradientStop Color="#080505" Offset="1.0"/>
+                    <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="1" RadiusY="1">
+                        <GradientStop Color="#1a0808" Offset="0.0"/>
+                        <GradientStop Color="#050505" Offset="1.0"/>
                     </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <!-- Padrão de grade sutil -->
+            <Border Opacity="0.03">
+                <Border.Background>
+                    <DrawingBrush TileMode="Tile" Viewport="0,0,50,50" ViewportUnits="Absolute">
+                        <DrawingBrush.Drawing>
+                            <GeometryDrawing Brush="#ef4444">
+                                <GeometryDrawing.Geometry>
+                                    <RectangleGeometry Rect="0,0,1,1"/>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
                 </Border.Background>
             </Border>
 
@@ -337,67 +509,119 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Cabeçalho Agressivo -->
-                <Border Grid.Row="0" Background="#ef4444" CornerRadius="4" HorizontalAlignment="Center" Padding="20,4">
+                <!-- Header Premium com Badge -->
+                <Border Grid.Row="0" Background="#15ef4444" CornerRadius="12" HorizontalAlignment="Center" Padding="25,12" Margin="0,0,0,20">
                     <Border.Effect>
-                        <DropShadowEffect Color="#ef4444" BlurRadius="15" ShadowDepth="0" Opacity="0.8"/>
+                        <DropShadowEffect Color="#ef4444" BlurRadius="20" ShadowDepth="0" Opacity="0.5"/>
                     </Border.Effect>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⚠ MODO DE ALTO DESEMPENHO ATIVO: " FontSize="12" FontWeight="Black" Foreground="White" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="TxtGameTitle" Text="[JOGO]" FontSize="14" FontWeight="Bold" Foreground="#ffe4e6" VerticalAlignment="Center"/>
+                        <TextBlock Text="⚡" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="PERFORMANCE MODE" FontSize="13" FontWeight="Bold" Foreground="#ef4444" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                        <TextBlock Text="•" FontSize="13" Foreground="#4a5568" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                        <TextBlock x:Name="TxtGameTitle" Text="[JOGO]" FontSize="13" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
 
-                <!-- CPU e GPU em Destaque Absoluto -->
-                <Grid Grid.Row="1" VerticalAlignment="Center" Margin="0,15,0,15">
+                <!-- CPU e GPU Cards Modernos -->
+                <Grid Grid.Row="1" VerticalAlignment="Center" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Card CPU Gigante -->
-                    <Border Grid.Column="0" Background="#0f0f13" BorderBrush="#2a1010" BorderThickness="2" CornerRadius="12" Padding="20">
+                    <!-- Card CPU Premium -->
+                    <Border Grid.Column="0" Background="#0a0a0f" BorderBrush="#20ef4444" BorderThickness="1.5" CornerRadius="16" Padding="25">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" BlurRadius="30" ShadowDepth="10" Opacity="0.6"/>
+                        </Border.Effect>
                         <StackPanel>
-                            <TextBlock Text="PROCESSADOR (CPU)" FontSize="14" FontWeight="Black" Foreground="#7f1d1d" Margin="0,0,0,0"/>
-                            <TextBlock x:Name="TxtGameCpuTemp" Text="--°" FontSize="80" FontWeight="Black" Foreground="#ef4444" HorizontalAlignment="Center">
+                            <!-- Header CPU -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBlock Text="🖥" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="PROCESSADOR" FontSize="12" FontWeight="Bold" Foreground="#64748b" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Temperatura gigante com glow -->
+                            <TextBlock x:Name="TxtGameCpuTemp" Text="--°" FontSize="72" FontWeight="Black" Foreground="#ef4444" HorizontalAlignment="Center" Margin="0,10,0,10">
                                 <TextBlock.Effect>
-                                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="5" Opacity="0.5"/>
+                                    <DropShadowEffect Color="#ef4444" BlurRadius="20" ShadowDepth="0" Opacity="0.6"/>
                                 </TextBlock.Effect>
                             </TextBlock>
-                            <Grid Margin="0,5,0,0">
+
+                            <!-- Usage bar moderna -->
+                            <Grid Margin="0,10,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="TxtGameCpuUsage" Text="0%" FontSize="20" FontWeight="Bold" Margin="0,0,12,0" Width="60" Foreground="#f87171" VerticalAlignment="Center" TextAlignment="Right"/>
-                                <ProgressBar x:Name="BarGameCpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="12" Foreground="#ef4444" BorderThickness="0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtGameCpuUsage" Text="0%" FontSize="18" FontWeight="Bold" Margin="0,0,12,0" Width="55" Foreground="#f87171" VerticalAlignment="Center" TextAlignment="Right"/>
+                                <Border Grid.Column="1" Background="#0f1419" CornerRadius="8" Height="10">
+                                    <ProgressBar x:Name="BarGameCpu" Value="0" Maximum="100" Background="Transparent" BorderThickness="0" Foreground="#ef4444" VerticalAlignment="Center">
+                                        <ProgressBar.Template>
+                                            <ControlTemplate TargetType="ProgressBar">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="8" ClipToBounds="True">
+                                                    <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" CornerRadius="8">
+                                                        <Border.Effect>
+                                                            <DropShadowEffect Color="#ef4444" BlurRadius="12" ShadowDepth="0" Opacity="0.8"/>
+                                                        </Border.Effect>
+                                                    </Border>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </ProgressBar.Template>
+                                    </ProgressBar>
+                                </Border>
                             </Grid>
                         </StackPanel>
                     </Border>
 
-                    <!-- Card GPU Gigante -->
-                    <Border Grid.Column="2" Background="#0f0f13" BorderBrush="#2a1010" BorderThickness="2" CornerRadius="12" Padding="20">
+                    <!-- Card GPU Premium -->
+                    <Border Grid.Column="2" Background="#0a0a0f" BorderBrush="#20ef4444" BorderThickness="1.5" CornerRadius="16" Padding="25">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" BlurRadius="30" ShadowDepth="10" Opacity="0.6"/>
+                        </Border.Effect>
                         <StackPanel>
-                            <TextBlock Text="PLACA DE VÍDEO (GPU)" FontSize="14" FontWeight="Black" Foreground="#7f1d1d" Margin="0,0,0,0"/>
-                            <TextBlock x:Name="TxtGameGpuTemp" Text="--°" FontSize="80" FontWeight="Black" Foreground="#ef4444" HorizontalAlignment="Center">
+                            <!-- Header GPU -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBlock Text="🎮" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="PLACA DE VÍDEO" FontSize="12" FontWeight="Bold" Foreground="#64748b" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Temperatura gigante com glow -->
+                            <TextBlock x:Name="TxtGameGpuTemp" Text="--°" FontSize="72" FontWeight="Black" Foreground="#ef4444" HorizontalAlignment="Center" Margin="0,10,0,10">
                                 <TextBlock.Effect>
-                                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="5" Opacity="0.5"/>
+                                    <DropShadowEffect Color="#ef4444" BlurRadius="20" ShadowDepth="0" Opacity="0.6"/>
                                 </TextBlock.Effect>
                             </TextBlock>
-                            <Grid Margin="0,5,0,0">
+
+                            <!-- Usage bar moderna -->
+                            <Grid Margin="0,10,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="TxtGameGpuUsage" Text="0%" FontSize="20" FontWeight="Bold" Margin="0,0,12,0" Width="60" Foreground="#f87171" VerticalAlignment="Center" TextAlignment="Right"/>
-                                <ProgressBar x:Name="BarGameGpu" Grid.Column="1" Style="{StaticResource FlatProgressBar}" Value="0" Maximum="100" Height="12" Foreground="#ef4444" BorderThickness="0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtGameGpuUsage" Text="0%" FontSize="18" FontWeight="Bold" Margin="0,0,12,0" Width="55" Foreground="#f87171" VerticalAlignment="Center" TextAlignment="Right"/>
+                                <Border Grid.Column="1" Background="#0f1419" CornerRadius="8" Height="10">
+                                    <ProgressBar x:Name="BarGameGpu" Value="0" Maximum="100" Background="Transparent" BorderThickness="0" Foreground="#ef4444" VerticalAlignment="Center">
+                                        <ProgressBar.Template>
+                                            <ControlTemplate TargetType="ProgressBar">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="8" ClipToBounds="True">
+                                                    <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" CornerRadius="8">
+                                                        <Border.Effect>
+                                                            <DropShadowEffect Color="#ef4444" BlurRadius="12" ShadowDepth="0" Opacity="0.8"/>
+                                                        </Border.Effect>
+                                                    </Border>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </ProgressBar.Template>
+                                    </ProgressBar>
+                                </Border>
                             </Grid>
                         </StackPanel>
                     </Border>
                 </Grid>
 
-                <!-- Rodapé -->
+                <!-- Footer com RAM e Rede minimalista -->
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -405,17 +629,25 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Background="#0f0f13" BorderBrush="#2a1010" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                    <Border Grid.Column="0" Background="#0a0a0f" BorderBrush="#20ef4444" BorderThickness="1" CornerRadius="10" Padding="15,12">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" BlurRadius="15" ShadowDepth="5" Opacity="0.4"/>
+                        </Border.Effect>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="USO DE RAM: " FontSize="14" Foreground="#991b1b" FontWeight="Black"/>
-                            <TextBlock x:Name="TxtGameRam" Text="--%" FontSize="16" Foreground="#fca5a5" FontWeight="Bold"/>
+                            <TextBlock Text="💾 " FontSize="14" Foreground="#64748b" VerticalAlignment="Center"/>
+                            <TextBlock Text="RAM " FontSize="13" Foreground="#64748b" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="TxtGameRam" Text="--%" FontSize="15" Foreground="#fca5a5" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="2" Background="#0f0f13" BorderBrush="#2a1010" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                    <Border Grid.Column="2" Background="#0a0a0f" BorderBrush="#20ef4444" BorderThickness="1" CornerRadius="10" Padding="15,12">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" BlurRadius="15" ShadowDepth="5" Opacity="0.4"/>
+                        </Border.Effect>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="TRÁFEGO DE REDE: " FontSize="14" Foreground="#991b1b" FontWeight="Black"/>
-                            <TextBlock x:Name="TxtGameNet" Text="0 KB/s" FontSize="16" Foreground="#fca5a5" FontWeight="Bold"/>
+                            <TextBlock Text="🌐 " FontSize="14" Foreground="#64748b" VerticalAlignment="Center"/>
+                            <TextBlock Text="REDE " FontSize="13" Foreground="#64748b" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="TxtGameNet" Text="0 KB/s" FontSize="15" Foreground="#fca5a5" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -423,15 +655,27 @@
         </Grid>
 
         <!-- PAINEL 3: CONFIGURAÇÕES -->
-        <Border x:Name="PanelConfig" Visibility="Hidden" Opacity="0" Background="#ea080a0f" Panel.ZIndex="20">
-            <Border Width="380" Background="#11151e" BorderBrush="#202738" BorderThickness="2" CornerRadius="12" Padding="25" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Border x:Name="PanelConfig" Visibility="Hidden" Opacity="0" Panel.ZIndex="20">
+            <Border.Background>
+                <SolidColorBrush Color="#080a0f" Opacity="0.92"/>
+            </Border.Background>
+            <Border Width="400" CornerRadius="16" Padding="30" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#16202e" Offset="0"/>
+                        <GradientStop Color="#0f1419" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" BlurRadius="40" ShadowDepth="8" Opacity="0.7" Direction="270"/>
+                </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="⚙ CONFIGURAÇÕES" FontSize="20" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,25"/>
+                    <TextBlock Text="⚙ CONFIGURAÇÕES" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
-                    <TextBlock Text="Localização (Clima):" Foreground="#94a3b8" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <TextBox x:Name="InputCity" Style="{StaticResource FlatTextBox}" FontSize="16" Text="Canoas" Margin="0,0,0,20"/>
+                    <TextBlock Text="Localização (Clima):" Foreground="#94a3b8" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
+                    <TextBox x:Name="InputCity" Style="{StaticResource FlatTextBox}" FontSize="15" Text="Canoas" Margin="0,0,0,24"/>
 
-                    <CheckBox x:Name="ChkAutoStart" Content="Iniciar com o Windows (Auto-Start)" Foreground="White" FontSize="14" Margin="0,0,0,25"/>
+                    <CheckBox x:Name="ChkAutoStart" Content="Iniciar com o Windows (Auto-Start)" Foreground="#cbd5e1" FontSize="14" Margin="0,0,0,28"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -439,11 +683,11 @@
                             <ColumnDefinition Width="15"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Style="{StaticResource FlatButton}" Background="#1a2233" Foreground="White" BorderBrush="#202738" BorderThickness="1" Content="Cancelar" Click="BtnCancelConfig_Click"/>
+                        <Button Grid.Column="0" Style="{StaticResource FlatButton}" Background="#1e293b" Foreground="#cbd5e1" Content="Cancelar" Click="BtnCancelConfig_Click"/>
                         <Button Grid.Column="2" Style="{StaticResource FlatButton}" Content="Salvar" Click="BtnSaveConfig_Click"/>
                     </Grid>
 
-                    <TextBlock x:Name="TxtConfigStatus" Foreground="#ef4444" FontSize="14" HorizontalAlignment="Center" Margin="0,15,0,15"/>
+                    <TextBlock x:Name="TxtConfigStatus" Foreground="#ef4444" FontSize="13" HorizontalAlignment="Center" Margin="0,20,0,0"/>
 
                 </StackPanel>
             </Border>

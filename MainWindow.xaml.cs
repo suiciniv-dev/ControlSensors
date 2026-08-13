@@ -1,4 +1,6 @@
 ﻿using ControlSensors.Services;
+using ControlSensors.Configuration;
+using ControlSensors.Models;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -228,32 +230,55 @@ public partial class MainWindow : Window {
         if (data.CpuTemp.HasValue) {
             TxtCpuTemp.Text = $"{Math.Round(data.CpuTemp.Value)}°";
             TxtCpuTemp.Foreground = GetTempColor(data.CpuTemp.Value);
+            UpdateStatusBadge(CpuStatusBadge, data.CpuTemp.Value);
             SetPulseWarning(TxtCpuTemp, BarCpu, data.CpuTemp.Value >= 85);
         }
         if (data.CpuUsage.HasValue) {
             TxtCpuUsage.Text = $"{Math.Round(data.CpuUsage.Value)}%";
-            BarCpu.Value = data.CpuUsage.Value;
+            AnimateProgressBar(BarCpu, data.CpuUsage.Value);
             BarCpu.Foreground = GetTempColor(data.CpuUsage.Value, isUsage: true);
         }
 
         if (data.GpuTemp.HasValue) {
             TxtGpuTemp.Text = $"{Math.Round(data.GpuTemp.Value)}°";
             TxtGpuTemp.Foreground = GetTempColor(data.GpuTemp.Value);
+            UpdateStatusBadge(GpuStatusBadge, data.GpuTemp.Value);
             SetPulseWarning(TxtGpuTemp, BarGpu, data.GpuTemp.Value >= 85);
         }
         if (data.GpuUsage.HasValue) {
             TxtGpuUsage.Text = $"{Math.Round(data.GpuUsage.Value)}%";
-            BarGpu.Value = data.GpuUsage.Value;
+            AnimateProgressBar(BarGpu, data.GpuUsage.Value);
             BarGpu.Foreground = GetTempColor(data.GpuUsage.Value, isUsage: true);
         }
 
         if (data.RamUsedGb.HasValue && data.RamTotalGb.HasValue) {
             TxtRamDetail.Text = $"{data.RamUsedGb.Value:F1} / {Math.Round(data.RamTotalGb.Value)} GB";
         }
-        if (data.RamUsagePct.HasValue) {
-            TxtRamPct.Text = $"{Math.Round(data.RamUsagePct.Value)}%";
-            BarRam.Value = data.RamUsagePct.Value;
+    }
+
+    private void UpdateStatusBadge(Border badge, float temperature) {
+        var textBlock = (TextBlock)badge.Child;
+
+        if (temperature < 70) {
+            badge.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10b981")); // Verde
+            textBlock.Text = "NORMAL";
+        } else if (temperature < 85) {
+            badge.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f59e0b")); // Amarelo
+            textBlock.Text = "ALERTA";
+        } else {
+            badge.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ef4444")); // Vermelho
+            textBlock.Text = "CRÍTICO";
         }
+    }
+
+    private void AnimateProgressBar(System.Windows.Controls.ProgressBar progressBar, double targetValue) {
+        var animation = new DoubleAnimation {
+            From = progressBar.Value,
+            To = targetValue,
+            Duration = TimeSpan.FromMilliseconds(400),
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+        };
+        progressBar.BeginAnimation(System.Windows.Controls.Primitives.RangeBase.ValueProperty, animation);
     }
 
     private void UpdateAudioBars(float[] bands) {
@@ -319,6 +344,8 @@ public partial class MainWindow : Window {
 
                 TxtMusicBigTitle.Text = string.IsNullOrEmpty(_lastMediaData.Title) ? "Desconhecido" : _lastMediaData.Title;
                 TxtMusicBigArtist.Text = string.IsNullOrEmpty(_lastMediaData.Artist) ? "---" : _lastMediaData.Artist;
+
+                TxtPlayerSource.Text = GetPlayerDisplayName(_lastMediaData.AppName);
 
                 if (!string.IsNullOrEmpty(_lastMediaData.CoverBase64)) {
                     try {
@@ -429,11 +456,23 @@ public partial class MainWindow : Window {
     private async void BtnNext_Click(object sender, MouseButtonEventArgs e) {
         await _media.SkipNextAsync();
     }
-}
 
-public class AppConfig {
-    public string City { get; set; } = "Canoas";
-    public double WindowLeft { get; set; } = double.NaN;
-    public double WindowTop { get; set; } = double.NaN;
-    public bool AutoStart { get; set; } = false;
+    private string GetPlayerDisplayName(string appId) {
+        if (string.IsNullOrEmpty(appId)) return "Playing Music";
+
+        if (appId.Contains("Spotify", StringComparison.OrdinalIgnoreCase))
+            return "Playing on Spotify";
+        if (appId.Contains("YouTube", StringComparison.OrdinalIgnoreCase) || appId.Contains("Music", StringComparison.OrdinalIgnoreCase))
+            return "Playing on YouTube Music";
+        if (appId.Contains("iTunes", StringComparison.OrdinalIgnoreCase) || appId.Contains("Apple", StringComparison.OrdinalIgnoreCase))
+            return "Playing on Apple Music";
+        if (appId.Contains("Deezer", StringComparison.OrdinalIgnoreCase))
+            return "Playing on Deezer";
+        if (appId.Contains("Tidal", StringComparison.OrdinalIgnoreCase))
+            return "Playing on Tidal";
+        if (appId.Contains("Amazon", StringComparison.OrdinalIgnoreCase))
+            return "Playing on Amazon Music";
+
+        return "Playing Music";
+    }
 }

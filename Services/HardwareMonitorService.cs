@@ -1,28 +1,7 @@
 ﻿using LibreHardwareMonitor.Hardware;
+using ControlSensors.Models;
 
 namespace ControlSensors.Services;
-
-public class SystemMetricsDto {
-    public float? CpuUsage { get; set; }
-    public float? CpuTemp { get; set; }
-    public float? GpuUsage { get; set; }
-    public float? GpuTemp { get; set; }
-    public float? RamUsedGb { get; set; }
-    public float? RamTotalGb { get; set; }
-    public float? RamUsagePct { get; set; }
-    public List<DiskInfo> Disks { get; set; } = new();
-    public List<FanInfo> Fans { get; set; } = new();
-}
-
-public class DiskInfo {
-    public string Name { get; set; } = string.Empty;
-    public float? Temp { get; set; }
-}
-
-public class FanInfo {
-    public string Name { get; set; } = string.Empty;
-    public float? SpeedRpm { get; set; }
-}
 
 public class HardwareMonitorService : IDisposable {
     private readonly Computer _computer;
@@ -62,21 +41,50 @@ public class HardwareMonitorService : IDisposable {
             }
 
             if (hardware.HardwareType is HardwareType.GpuNvidia or HardwareType.GpuAmd or HardwareType.GpuIntel) {
+                float? bestGpuLoad = null;
+                float? bestGpuTemp = null;
+                int loadPriority = 0;
+                int tempPriority = 0;
+
                 foreach (var sensor in hardware.Sensors) {
                     if (sensor.SensorType == SensorType.Load && sensor.Value.HasValue) {
-                        if (sensor.Name.Contains("Core", StringComparison.OrdinalIgnoreCase) ||
-                            sensor.Name.Contains("D3D", StringComparison.OrdinalIgnoreCase) ||
-                            metrics.GpuUsage == null) {
-                            metrics.GpuUsage = sensor.Value;
+                        int currentLoadPriority = 0;
+
+                        if (sensor.Name.Contains("GPU Core", StringComparison.OrdinalIgnoreCase)) {
+                            currentLoadPriority = 10;
+                        } else if (sensor.Name.Contains("D3D 3D", StringComparison.OrdinalIgnoreCase)) {
+                            currentLoadPriority = 9;
+                        } else if (sensor.Name.Contains("Core", StringComparison.OrdinalIgnoreCase) && sensor.Name.Contains("Load", StringComparison.OrdinalIgnoreCase)) {
+                            currentLoadPriority = 8;
+                        } else if (sensor.Name.Contains("GPU", StringComparison.OrdinalIgnoreCase)) {
+                            currentLoadPriority = 5;
                         }
-                    } else if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Value > 0) {
-                        if (sensor.Name.Contains("Core", StringComparison.OrdinalIgnoreCase) ||
-                            sensor.Name.Contains("GPU", StringComparison.OrdinalIgnoreCase) ||
-                            metrics.GpuTemp == null) {
-                            metrics.GpuTemp = sensor.Value;
+
+                        if (currentLoadPriority > loadPriority) {
+                            bestGpuLoad = sensor.Value;
+                            loadPriority = currentLoadPriority;
+                        }
+                    } else if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Value > 0 && sensor.Value < 150) {
+                        int currentTempPriority = 0;
+
+                        if (sensor.Name.Contains("GPU Core", StringComparison.OrdinalIgnoreCase) ||
+                            sensor.Name.Contains("Core", StringComparison.OrdinalIgnoreCase)) {
+                            currentTempPriority = 10;
+                        } else if (sensor.Name.Contains("GPU", StringComparison.OrdinalIgnoreCase)) {
+                            currentTempPriority = 8;
+                        } else if (sensor.Name.Contains("Hot Spot", StringComparison.OrdinalIgnoreCase)) {
+                            currentTempPriority = 7;
+                        }
+
+                        if (currentTempPriority > tempPriority) {
+                            bestGpuTemp = sensor.Value;
+                            tempPriority = currentTempPriority;
                         }
                     }
                 }
+
+                if (bestGpuLoad.HasValue) metrics.GpuUsage = bestGpuLoad;
+                if (bestGpuTemp.HasValue) metrics.GpuTemp = bestGpuTemp;
             }
 
             if (hardware.HardwareType == HardwareType.Memory) {
@@ -104,25 +112,49 @@ public class HardwareMonitorService : IDisposable {
     }
 
     private static void ProcessCpuSensors(IHardware hardware, SystemMetricsDto metrics, ref float? fallbackTemp) {
+        float? bestCpuTemp = null;
+        int tempPriority = 0;
+
         foreach (var sensor in hardware.Sensors) {
-            if (sensor.SensorType == SensorType.Load) {
-                if (sensor.Name.Contains("Total", StringComparison.OrdinalIgnoreCase) || metrics.CpuUsage == null) {
+            if (sensor.SensorType == SensorType.Load && sensor.Value.HasValue) {
+                if (sensor.Name.Contains("CPU Total", StringComparison.OrdinalIgnoreCase)) {
+                    metrics.CpuUsage = sensor.Value;
+                } else if (sensor.Name.Contains("Total", StringComparison.OrdinalIgnoreCase) && metrics.CpuUsage == null) {
                     metrics.CpuUsage = sensor.Value;
                 }
-            }
-            else if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Value > 0) {
+            } else if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Value > 0 && sensor.Value < 150) {
                 var name = sensor.Name;
+                int currentPriority = 0;
 
-                if (name.Contains("Tctl", StringComparison.OrdinalIgnoreCase) ||
-                    name.Contains("Tdie", StringComparison.OrdinalIgnoreCase) ||
-                    name.Contains("Package", StringComparison.OrdinalIgnoreCase) ||
-                    name.Contains("CCD", StringComparison.OrdinalIgnoreCase) ||
-                    name.Contains("Core Max", StringComparison.OrdinalIgnoreCase)) {
-                    metrics.CpuTemp = sensor.Value;
-                } else if (fallbackTemp == null) {
+                if (name.Contains("Tctl", StringComparison.OrdinalIgnoreCase)) {
+                    currentPriority = 10;
+                } else if (name.Contains("Tdie", StringComparison.OrdinalIgnoreCase)) {
+                    currentPriority = 9;
+                } else if (name.Contains("CPU Package", StringComparison.OrdinalIgnoreCase) || name.Contains("Package", StringComparison.OrdinalIgnoreCase)) {
+                    currentPriority = 8;
+                } else if (name.Contains("Core Max", StringComparison.OrdinalIgnoreCase)) {
+                    currentPriority = 7;
+                } else if (name.Contains("CCD", StringComparison.OrdinalIgnoreCase) && name.Contains("Average", StringComparison.OrdinalIgnoreCase)) {
+                    currentPriority = 6;
+                } else if (name.Contains("CPU", StringComparison.OrdinalIgnoreCase)) {
+                    currentPriority = 5;
+                } else if (name.Contains("Core", StringComparison.OrdinalIgnoreCase)) {
+                    currentPriority = 1;
+                }
+
+                if (currentPriority > tempPriority) {
+                    bestCpuTemp = sensor.Value;
+                    tempPriority = currentPriority;
+                }
+
+                if (fallbackTemp == null && currentPriority > 0) {
                     fallbackTemp = sensor.Value;
                 }
             }
+        }
+
+        if (bestCpuTemp.HasValue) {
+            metrics.CpuTemp = bestCpuTemp;
         }
     }
 

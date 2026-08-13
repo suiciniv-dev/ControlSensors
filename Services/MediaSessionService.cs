@@ -3,19 +3,9 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Media.Control;
 using Windows.Storage.Streams;
+using ControlSensors.Models;
 
 namespace ControlSensors.Services;
-
-public class MediaInfoDto {
-    public bool IsPlaying { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Artist { get; set; } = string.Empty;
-    public string Album { get; set; } = string.Empty;
-    public string AppName { get; set; } = string.Empty;
-    public string CoverBase64 { get; set; } = string.Empty;
-    public TimeSpan Position { get; set; }
-    public TimeSpan Duration { get; set; }
-}
 
 public class MediaSessionService {
     private GlobalSystemMediaTransportControlsSession? _currentSession;
